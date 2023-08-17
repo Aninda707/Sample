@@ -1,34 +1,42 @@
 import streamlit as st
 import numpy as np
-import pandas as pd
 import matplotlib.pyplot as plt
 
-# Page layout
-st.set_page_config(page_title="Normal Distribution App", layout="wide")
+def generate_normal_distribution(mean, std, n_samples):
+  """Generates a normal distribution with the given mean, standard deviation, and number of samples."""
+  data = np.random.normal(mean, std, n_samples)
+  return data
 
-# Sidebar
-st.sidebar.header("Parameters")
-mean = st.sidebar.number_input("Mean", value=0.0)
-std_dev = st.sidebar.number_input("Standard Deviation", value=1.0)
-num_samples = st.sidebar.number_input("Number of Samples", value=1000)
+def plot_histogram(data):
+  """Plots the histogram of the given data."""
+  fig, ax = plt.subplots()
+  ax.hist(data)
+  plt.xlabel("Value")
+  plt.ylabel("Frequency")
+  plt.title("Histogram of the Normal Distribution")
 
-# Generate random data
-np.random.seed(0)  # For reproducibility
-data = np.random.normal(mean, std_dev, num_samples)
+def download_data(data):
+  """Downloads the given data as a .csv file."""
+  csv_file = "normal_distribution.csv"
+  with open(csv_file, "w") as f:
+    f.write("value,frequency\n")
+    for value, frequency in enumerate(data):
+      f.write(f"{value},{frequency}\n")
 
-# Histogram
-st.header("Histogram of Generated Data")
-plt.hist(data, bins=30, edgecolor="k")
-plt.xlabel("Value")
-plt.ylabel("Frequency")
-st.pyplot()
+st.title("Generate Normal Distribution")
 
-# Download as CSV
-if st.button("Download Data as CSV"):
-    df = pd.DataFrame(data, columns=["Value"])
-    csv = df.to_csv(index=False)
-    st.download_button("Download CSV", data=csv, file_name="generated_data.csv")
+# Get the mean, standard deviation, and number of samples from the user.
+mean = st.number_input("Mean", value=0)
+std = st.number_input("Standard deviation", value=1)
+n_samples = st.number_input("Number of samples", value=100)
 
-# App footer
-st.markdown("---")
-st.markdown("Created by Your Name")
+# Generate the normal distribution data.
+data = generate_normal_distribution(mean, std, n_samples)
+
+# Plot the histogram of the data.
+if st.checkbox("Plot histogram"):
+  plot_histogram(data)
+
+# Download the data as a .csv file.
+if st.checkbox("Download data"):
+  download_data(data)
